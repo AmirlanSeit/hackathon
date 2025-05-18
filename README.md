@@ -26,6 +26,7 @@
 ---
 
 ## ⚙️ Требования
+
 | Компонент | Версия |
 |-----------|--------|
 | Node.js   | ≥ 18.x |
@@ -36,35 +37,72 @@
 
 ---
 
+# Структура проекта
+
+```text
+HACKATHON/
+├─ .vscode/
+│  └─ launch.json
+├─ node_modules/
+├─ outputs/
+├─ public/
+│  ├─ app.js
+│  ├─ index.html
+│  ├─ script.js
+│  └─ style.css
+├─ uploads/
+├─ utils/
+├─ anonymizer.js
+├─ .env
+├─ eng.traineddata
+├─ package-lock.json
+├─ package.json
+└─ server.js
+```
+---
+
 ## 🛠️ Установка
 
 git clone https://github.com/AmirlanSeit/hackathon.git
 
 Создайте .env в корне:
+
 PORT=8000
+
 OPENAI_API_KEY=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
+
 RATE_LIMIT_WINDOW=15    # минут
+
 RATE_LIMIT_MAX=100      # запросов
 
-Создайте и перейдите в каталог проекта,
+Создайте и перейдите в каталог проекта:
+
 mkdir hackathon
+
 cd hackathon
 
-Инициализируйте проект Node.js и установите зависимости,
+Инициализируйте проект Node.js и установите зависимости:
+
 npm init -y
+
 npm install cors express multer dotenv openai mammoth docx pdf-lib tesseract.js @faker-js/faker companion sharp express-rate-limit
 
-Создайте необходимые каталоги,
+Создайте необходимые каталоги:
+
 mkdir public
+
 mkdir uploads
 
-Установите права на запись для папки uploads,
+Установите права на запись для папки uploads:
+
 icacls uploads /grant Users:F
 
-Запустите сервер,
+Запустите сервер:
+
 npm start
 
 🔍 Как это работает
+
 /upload — сохраняет файл во временную папку uploads/.
 
 /anonymize —
