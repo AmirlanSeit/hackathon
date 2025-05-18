@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DataAnon — Offline Data Anonymization</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://js.puter.com/v2/"></script>
+</head>
+<body>
+  <header class="header">
+    <div class="header__inner">
+      <h1 class="logo">DATA   ANON</h1>
+      <p class="tagline">Securely anonymize your files offline</p>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <form id="upload-form" class="form">
+        <div class="form__group custom-file-input">
+          <input type="file" id="file" name="file" class="form__file" />
+          <label for="file" class="form__label">Click to select or drag & drop a file</label>
+          <div id="file-info" class="file-info"></div>
+        </div>
+        <div class="form__group">
+          <label for="mode" class="form__label">Anonymization Mode</label>
+          <select id="mode" name="mode" class="form__select">
+            <option value="mask">Masking</option>
+            <option value="pseudonymize">Pseudonymization</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn--primary">Anonymize Now</button>
+      </form>
+
+      <div id="result" class="result hidden">
+        <p id="message" class="result__message"></p>
+        <a id="download-link" class="btn btn--secondary" style="display: none">Download Anonymized File</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>&copy; 2025 DataAnon. All offline, all secure.</p>
+  </footer>
+
+  <!-- Enhanced Chatbot Widget -->
+  <div class="chatbot-widget">
+    <div class="chatbot-header">
+        <span>AI Assistant</span>
+        <span class="toggle-icon">▼</span>
+    </div>
+    <div class="chatbot-body closed">
+        <div class="chatbot-messages" id="chatbot-messages">
+            <!-- Messages will be inserted here -->
+        </div>
+        <form class="chatbot-form" id="chatbot-form">
+            <div class="chatbot-input-container">
+                <input type="text" id="chatbot-input" placeholder="Type your message...">
+                <button type="submit" class="send-button">Send</button>
+            </div>
+        </form>
+    </div>
+  </div>
+
+  <script>
+document.getElementById('upload-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const submitButton = e.target.querySelector('button[type="submit"]');
+    submitButton.disabled = true;
+    submitButton.textContent = 'Processing...';
+
+    try {
+        const formData = new FormData(e.target);
+        // First upload the file
+        const uploadResponse = await fetch('/upload', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const uploadResult = await uploadResponse.json();
+        
+        if (uploadResult.error) {
+            throw new Error(uploadResult.error);
+        }
+
+        // Then trigger anonymization
+        const anonymizeResponse = await fetch('/anonymize', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                filename: uploadResult.filename,
+                mode: formData.get('mode')
+            })
+        });
+
+        const result = await anonymizeResponse.json();
+        const resultDiv = document.getElementById('result');
+        const messageP = document.getElementById('message');
+        const downloadLink = document.getElementById('download-link');
+        
+        resultDiv.classList.remove('hidden');
+        
+        if (result.error) {
+            messageP.textContent = result.error;
+            downloadLink.style.display = 'none';
+        } else {
+            messageP.textContent = 'File anonymized successfully!';
+            // Update download link to use the output filename
+            downloadLink.href = `/download/${result.output_file}`;
+            downloadLink.download = result.output_file; // Add this line
+            downloadLink.style.display = 'block';
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        document.getElementById('message').textContent = 'An error occurred during processing';
+        document.getElementById('result').classList.remove('hidden');
+        document.getElementById('download-link').style.display = 'none';
+    } finally {
+        submitButton.disabled = false;
+        submitButton.textContent = 'Anonymize Now';
+    }
+});
+
+document.getElementById('file').addEventListener('change', (e) => {
+    const fileInfo = document.getElementById('file-info');
+    const file = e.target.files[0];
+    if (file) {
+        fileInfo.textContent = `Selected file: ${file.name} (${(file.size / 1024).toFixed(2)} KB)`;
+    } else {
+        fileInfo.textContent = '';
+    }
+});
+</script>
+<script src="script.js"></script>
+</body>
+</html>
